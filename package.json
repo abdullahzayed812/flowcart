@@ -1,0 +1,14 @@
+{
+  "name": "flowcart",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "shared",
+    "ecommerce-service",
+    "warehouse-service",
+    "shipping-service"
+  ],
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
