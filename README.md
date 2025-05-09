@@ -59,7 +59,7 @@ The API for each service follows RESTful principles. Each service (eCommerce, Wa
 
 ### **4.1. eCommerce Service API**
 
-#### **Base URL**: `http://localhost:3000`
+#### **Base URL**: `http://localhost:3001`
 
 #### **Endpoints**:
 
@@ -253,3 +253,49 @@ Each service uses its own MySQL database, which is initialized during the startu
 ### **6.2. Configuration**
 
 The app's configuration (like database connection parameters) is loaded from environment variables using the dotenv package. All environment variables are defined in a .env file, which is loaded during application initialization.
+
+### **Folders Structure**
+
+/flowcart-project
+│
+├── /shared
+│ ├── /middlewares
+│ │ ├── proxyMiddleware.ts # Native proxy middleware
+│ │ ├── authMiddleware.ts # Token + Role verification middleware
+│ │ └── errorHandler.ts # Global error handler
+│ ├── /database
+│ │ └── mysql-connection.ts # Singleton DB connector class
+│ ├── /utils
+│ │ └── responseHandler.ts # Class to handle responses with status codes
+│ ├── index.ts # Barrel file exports everything
+│ └── types.ts # Shared types/interfaces
+│
+├── /gateway
+│ ├── server.ts # Main entry with proxy routing
+│ └── .env # Env file for gateway configs
+│
+├── /ecommerce-service
+│ ├── /src
+│ │ ├── /controllers
+│ │ │ └── productController.ts # Handles logic for product endpoints
+│ │ ├── /services
+│ │ │ └── productService.ts # Handles business logic
+│ │ ├── /repositories
+│ │ │ └── productRepo.ts # Executes queries
+│ │ ├── /routes
+│ │ │ └── productRoutes.ts
+│ │ ├── db.ts # Initializes DB from shared connection
+│ │ ├── index.ts # Boots app
+│ │ └── server.ts # Express setup and middleware registration
+│ └── .env
+│
+├── /auth-service
+│ ├── /src
+│ │ ├── /controllers
+│ │ ├── /services
+│ │ ├── /routes
+│ │ ├── db.ts
+│ │ └── index.ts / server.ts
+│ └── .env
+│
+└── README.md # Full documentation
