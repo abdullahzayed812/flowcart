@@ -6,7 +6,8 @@
     "shared",
     "ecommerce-service",
     "warehouse-service",
-    "shipping-service"
+    "shipping-service",
+    "auth-service"
   ],
   "devDependencies": {
     "typescript": "^5.8.3"

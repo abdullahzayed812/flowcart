@@ -1,8 +1,7 @@
-import { Response, Request } from "express";
+import { Response, Request, NextFunction } from "express";
 
-export type WithError<T> = T & { error?: string };
-
-export type ExpressHandler<ReqBody = any, ResBody = any> = (
-  req: Request<any, Partial<WithError<ResBody>>, Partial<ReqBody>, any>,
-  res: Response<Partial<WithError<ResBody>>>
-) => void | Promise<void> | Response | Promise<Response>;
+export type ExpressHandler<ReqBody = any, ReqParams = any, ReqQuery = any, ResBody = any> = (
+  req: Request<ReqParams, ResBody, ReqBody, ReqQuery>,
+  res: Response<ResBody>,
+  next: NextFunction
+) => Promise<Response> | Response;
