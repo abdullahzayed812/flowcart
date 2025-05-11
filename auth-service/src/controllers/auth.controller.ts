@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
-import AuthService from "../services/auth.service";
+import { AuthService } from "../services/auth.service";
+import { ResponseHandler } from "@shared/utils/response-handler";
 
-class AuthController {
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
+
   async register(req: Request, res: Response): Promise<void> {
     try {
       const { email, password, role } = req.body;
@@ -11,7 +14,7 @@ class AuthController {
         return;
       }
 
-      const newUser = await AuthService.register(email, password, role);
+      const newUser = await this.authService.registerUser(email, password, role);
       res.status(201).json({
         message: "User registered successfully",
         userId: newUser.id,
@@ -30,7 +33,7 @@ class AuthController {
         return;
       }
 
-      const token = await AuthService.login(email, password);
+      const token = await this.authService.login(email, password);
       res.status(200).json({ token });
     } catch (error: any) {
       res.status(401).json({ message: error.message });
@@ -46,12 +49,10 @@ class AuthController {
         return;
       }
 
-      const decoded = AuthService.verifyToken(token);
+      const decoded = this.authService.verifyToken(token);
       res.status(200).json({ valid: true, user: decoded });
     } catch (error: any) {
       res.status(401).json({ valid: false, message: error.message });
     }
   }
 }
-
-export default new AuthController();

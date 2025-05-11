@@ -8,3 +8,5 @@ export * from "./middleware/proxy";
 
 export * from "./utils/http-exceptions";
 export * from "./utils/check-env-vars";
+export * from "./utils/jwt-util";
+export * from "./utils/service-mapper";

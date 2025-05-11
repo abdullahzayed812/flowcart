@@ -1,30 +1,50 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { ResponseHandler } from "../utils/response-handler";
+import { JwtUtil } from "../utils/jwt-util";
 
-const SECRET_KEY = process.env.JWT_SECRET_KEY || "your-secret-key";
+export class AuthMiddleware {
+  constructor(private readonly jwtUtil: JwtUtil) {}
 
-// Middleware to check the JWT token and validate user roles
-export function authMiddleware(roles: string[]) {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const authHeader = req.headers["authorization"];
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return ResponseHandler.unauthorized(res, "Unauthorized: Missing token");
-    }
-
-    const token = authHeader.split(" ")[1];
-
+  validateToken = (req: Request, res: Response, next: NextFunction): void => {
     try {
-      const decoded = jwt.verify(token, SECRET_KEY) as { role: string };
+      const token = req.headers.authorization?.split(" ")[1];
 
-      if (!roles.includes(decoded.role)) {
-        return ResponseHandler.forbidden(res, "Forbidden: Insufficient role");
+      if (!token) {
+        res.status(401).json({ message: "Authentication required" });
+        return;
       }
 
-      res.locals = decoded;
+      const decoded = this.jwtUtil.verifyToken(token);
+      req.user = decoded;
       next();
     } catch (error) {
-      return ResponseHandler.unauthorized(res, "Forbidden: Invalid token");
+      res.status(401).json({ message: "Invalid or expired token" });
     }
   };
+
+  // Middleware factory to check specific roles
+  hasRole = (allowedRoles: string[]) => {
+    return (req: Request, res: Response, next: NextFunction): void => {
+      if (!req.user) {
+        res.status(401).json({ message: "Authentication required" });
+        return;
+      }
+
+      const { roles, baseRole } = req.user;
+      const userRoles = [...roles, baseRole];
+
+      const hasAllowedRole = allowedRoles.some((role) => userRoles.includes(role));
+
+      if (!hasAllowedRole) {
+        res.status(403).json({ message: "Insufficient permissions" });
+        return;
+      }
+
+      next();
+    };
+  };
 }
+
+export const createAuthMiddleware = (jwtSecret?: string): AuthMiddleware => {
+  const jwtUtil = new JwtUtil(jwtSecret);
+  return new AuthMiddleware(jwtUtil);
+};
